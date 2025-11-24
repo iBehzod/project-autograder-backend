@@ -8,9 +8,13 @@ import org.modelmapper.TypeToken;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 import uk.ac.swansea.autograder.api.controllers.dto.NewUserDto;
 import uk.ac.swansea.autograder.api.controllers.dto.UserDto;
 import uk.ac.swansea.autograder.config.MyUserDetails;
@@ -50,9 +54,17 @@ public class UsersController {
     @PostMapping
     @PreAuthorize("hasAuthority('CREATE_USER')")
     @Operation(summary = "Create new user", description = "Creates a new user account")
-    public UserDto createUser(@Valid @RequestBody NewUserDto newUserDto) throws ResourceNotFoundException {
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody NewUserDto newUserDto) throws ResourceNotFoundException {
         User user = userService.createUser(newUserDto);
-        return modelMapper.map(user, UserDto.class);
+        UserDto userDto = modelMapper.map(user, UserDto.class);
+        
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(user.getId())
+                .toUri();
+        
+        return ResponseEntity.created(location).body(userDto);
     }
 
     @GetMapping("{id}")

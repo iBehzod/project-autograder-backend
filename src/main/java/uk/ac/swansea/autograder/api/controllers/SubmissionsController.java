@@ -7,15 +7,19 @@ import org.modelmapper.TypeToken;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 import uk.ac.swansea.autograder.api.controllers.dto.SubmissionBriefDto;
 import uk.ac.swansea.autograder.api.controllers.dto.SubmissionDetailDto;
 import uk.ac.swansea.autograder.api.controllers.dto.SubmissionDto;
 import uk.ac.swansea.autograder.api.entities.Submission;
 import uk.ac.swansea.autograder.api.services.SubmissionDetailService;
-import uk.ac.swansea.autograder.api.services.SubmissionMainService;
+import uk.ac.swansea.autograder.api.services.SubmissionExecutionService;
 import uk.ac.swansea.autograder.api.services.SubmissionService;
 import uk.ac.swansea.autograder.config.MyUserDetails;
 import uk.ac.swansea.autograder.exceptions.BadRequestException;
@@ -36,16 +40,16 @@ import java.util.stream.Collectors;
 public class SubmissionsController {
     private final SubmissionService submissionService;
     private final SubmissionDetailService submissionDetailService;
-    private final SubmissionMainService submissionMainService;
+    private final SubmissionExecutionService submissionExecutionService;
     private final ModelMapper modelMapper;
 
     public SubmissionsController(SubmissionService submissionService,
                                  SubmissionDetailService submissionDetailService,
-                                 SubmissionMainService submissionMainService,
+                                 SubmissionExecutionService submissionExecutionService,
                                  ModelMapper modelMapper) {
         this.submissionService = submissionService;
         this.submissionDetailService = submissionDetailService;
-        this.submissionMainService = submissionMainService;
+        this.submissionExecutionService = submissionExecutionService;
         this.modelMapper = modelMapper;
     }
 
@@ -179,12 +183,20 @@ public class SubmissionsController {
      */
     @PostMapping
     @PreAuthorize("hasAuthority('CREATE_SUBMISSION')")
-    public Submission submitSolution(Authentication authentication,
+    public ResponseEntity<Submission> submitSolution(Authentication authentication,
                                      @Valid @RequestBody SubmissionDto submissionDto)
             throws ResourceNotFoundException, BadRequestException {
         MyUserDetails user = (MyUserDetails) authentication.getPrincipal();
         submissionDto.setUserId(user.getId());
-        return submissionMainService.submitSolution(submissionDto);
+        Submission submission = submissionExecutionService.submitSolution(submissionDto);
+        
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(submission.getId())
+                .toUri();
+        
+        return ResponseEntity.created(location).body(submission);
     }
 
     /**

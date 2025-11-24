@@ -8,9 +8,13 @@ import org.modelmapper.TypeToken;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 import uk.ac.swansea.autograder.api.controllers.dto.ProblemBriefDto;
 import uk.ac.swansea.autograder.api.controllers.dto.ProblemDto;
 import uk.ac.swansea.autograder.api.entities.Problem;
@@ -33,12 +37,12 @@ import java.util.List;
 @Tag(name = "Manage problems", description = "Create a problem so that students can submit a code for it.")
 public class ProblemsController {
     private final ProblemService problemService;
-    private final SubmissionMainService submissionMainService;
+    private final SubmissionExecutionService submissionExecutionService;
     private final ModelMapper modelMapper;
 
-    public ProblemsController(ProblemService problemService, SubmissionMainService submissionMainService, ModelMapper modelMapper) {
+    public ProblemsController(ProblemService problemService, SubmissionExecutionService submissionExecutionService, ModelMapper modelMapper) {
         this.problemService = problemService;
-        this.submissionMainService = submissionMainService;
+        this.submissionExecutionService = submissionExecutionService;
         this.modelMapper = modelMapper;
     }
 
@@ -72,12 +76,20 @@ public class ProblemsController {
             summary = "Create new problem",
             description = "Creates a new programming problem with the provided details. The authenticated user will be set as the creator."
     )
-    public ProblemDto createProblem(Authentication authentication,
+    public ResponseEntity<ProblemDto> createProblem(Authentication authentication,
                                     @Valid @RequestBody ProblemDto problemDto) {
         MyUserDetails user = (MyUserDetails) authentication.getPrincipal();
         problemDto.setUserId(user.getId());
         Problem problem = problemService.createProblem(problemDto);
-        return modelMapper.map(problem, ProblemDto.class);
+        ProblemDto createdProblemDto = modelMapper.map(problem, ProblemDto.class);
+        
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(problem.getId())
+                .toUri();
+        
+        return ResponseEntity.created(location).body(createdProblemDto);
     }
 
     @GetMapping("{id}")
@@ -128,6 +140,6 @@ public class ProblemsController {
     @GetMapping("runtimes")
     @PreAuthorize("hasAuthority('CREATE_PROBLEM')")
     public List<RuntimeDto> getProblemRuntimes() {
-        return submissionMainService.getRuntimes();
+        return submissionExecutionService.getRuntimes();
     }
 }

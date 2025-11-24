@@ -18,9 +18,13 @@ import uk.ac.swansea.autograder.exceptions.ResourceNotFoundException;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Service responsible for executing student code submissions against test cases.
+ * Orchestrates the submission workflow: execution, validation, and result aggregation.
+ */
 @Service
 @Slf4j
-public class SubmissionMainService {
+public class SubmissionExecutionService {
     private final ProblemService problemService;
     private final TestCaseService testCaseService;
     private final ExecutionService executionService;
@@ -28,12 +32,12 @@ public class SubmissionMainService {
     private final SubmissionService submissionService;
     private final SubmissionSender submissionSender;
 
-    public SubmissionMainService(ProblemService problemService,
-                                 TestCaseService testCaseService,
-                                 ExecutionService executionService,
-                                 SubmissionDetailService submissionDetailService,
-                                 SubmissionService submissionService,
-                                 SubmissionSender submissionSender) {
+    public SubmissionExecutionService(ProblemService problemService,
+                                      TestCaseService testCaseService,
+                                      ExecutionService executionService,
+                                      SubmissionDetailService submissionDetailService,
+                                      SubmissionService submissionService,
+                                      SubmissionSender submissionSender) {
         this.problemService = problemService;
         this.testCaseService = testCaseService;
         this.executionService = executionService;

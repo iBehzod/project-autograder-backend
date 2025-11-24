@@ -5,9 +5,13 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 import uk.ac.swansea.autograder.api.controllers.dto.TestCaseDto;
 import uk.ac.swansea.autograder.api.entities.Problem;
 import uk.ac.swansea.autograder.api.entities.TestCase;
@@ -48,7 +52,7 @@ public class TestCasesController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('CREATE_TEST_CASE')")
-    public TestCase addTestCase(Authentication authentication,
+    public ResponseEntity<TestCase> addTestCase(Authentication authentication,
                                 @Valid @RequestBody TestCaseDto testCaseDto) throws ResourceNotFoundException, UnauthorizedException {
         // check owner id
         MyUserDetails user = (MyUserDetails) authentication.getPrincipal();
@@ -57,6 +61,14 @@ public class TestCasesController {
         if (!problem.getUserId().equals(user.getId())) {
             throw new UnauthorizedException();
         }
-        return testCaseService.addTestCase(problemId, testCaseDto);
+        TestCase testCase = testCaseService.addTestCase(problemId, testCaseDto);
+        
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(testCase.getId())
+                .toUri();
+        
+        return ResponseEntity.created(location).body(testCase);
     }
 }
