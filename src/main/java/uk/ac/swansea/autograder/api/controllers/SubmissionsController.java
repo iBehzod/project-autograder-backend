@@ -29,6 +29,8 @@ import uk.ac.swansea.autograder.exceptions.UnauthorizedException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static uk.ac.swansea.autograder.general.enums.PermissionEnum.*;
+
 /**
  * Get all submissions.
  * Get a specific submission.
@@ -59,7 +61,7 @@ public class SubmissionsController {
      * @return list of submissions
      */
     @GetMapping
-    @PreAuthorize("hasAuthority('VIEW_SUBMISSION')")
+    @PreAuthorize("hasAuthority('" + VIEW_SUBMISSION + "')")
     public List<SubmissionBriefDto> getSubmissions(@RequestParam(required = false) Long problemId,
                                                    @RequestParam(defaultValue = "0") Integer pageNo,
                                                    @RequestParam(defaultValue = "10") Integer pageSize) {
@@ -80,7 +82,7 @@ public class SubmissionsController {
      * @return list of submissions
      */
     @GetMapping("own")
-    @PreAuthorize("hasAuthority('VIEW_OWN_SUBMISSION')")
+    @PreAuthorize("hasAuthority('" + VIEW_OWN_SUBMISSION +"')")
     public List<SubmissionBriefDto> getOwnSubmissions(Authentication authentication,
                                                    @RequestParam(required = false) Long problemId,
                                                    @RequestParam(defaultValue = "0") Integer pageNo,
@@ -104,7 +106,7 @@ public class SubmissionsController {
      * @return submission
      */
     @GetMapping("{id}")
-    @PreAuthorize("hasAuthority('VIEW_SUBMISSION')")
+    @PreAuthorize("hasAuthority(' "+ VIEW_SUBMISSION +" ')")
     public SubmissionDto getSubmission(@PathVariable Long id)
             throws ResourceNotFoundException {
         Submission submission = submissionService.getSubmission(id);
@@ -117,7 +119,7 @@ public class SubmissionsController {
      * @return submission
      */
     @GetMapping("own/{id}")
-    @PreAuthorize("hasAuthority('VIEW_OWN_SUBMISSION')")
+    @PreAuthorize("hasAuthority('" + VIEW_OWN_SUBMISSION + "')")
     public SubmissionDto getOwnSubmission(Authentication authentication,
                                           @PathVariable Long id)
             throws ResourceNotFoundException, UnauthorizedException {
@@ -134,7 +136,7 @@ public class SubmissionsController {
      * Get test cases and results
      */
     @GetMapping("{id}/detail")
-    @PreAuthorize("hasAuthority('VIEW_SUBMISSION')")
+    @PreAuthorize("hasAuthority('" + VIEW_SUBMISSION + "')")
     public List<SubmissionDetailDto> getSubmissionDetails(@PathVariable Long id) {
         return submissionDetailService.getSubmissionDetail(id)
                 .stream()
@@ -153,7 +155,7 @@ public class SubmissionsController {
      * Get own submission details, which include test cases and results
      */
     @GetMapping("own/{id}/detail")
-    @PreAuthorize("hasAuthority('VIEW_OWN_SUBMISSION')")
+    @PreAuthorize("hasAuthority('" + VIEW_OWN_SUBMISSION + "')")
     public List<SubmissionDetailDto> getOwnSubmissionDetails(Authentication authentication,
                                                           @PathVariable Long id) throws ResourceNotFoundException, UnauthorizedException {
         // check owner id
@@ -182,7 +184,7 @@ public class SubmissionsController {
      * @param submissionDto submission body
      */
     @PostMapping
-    @PreAuthorize("hasAuthority('CREATE_SUBMISSION')")
+    @PreAuthorize("hasAuthority('" + CREATE_SUBMISSION + "')")
     public ResponseEntity<Submission> submitSolution(Authentication authentication,
                                      @Valid @RequestBody SubmissionDto submissionDto)
             throws ResourceNotFoundException, BadRequestException {
@@ -203,7 +205,7 @@ public class SubmissionsController {
      * Get test cases and results
      */
     @GetMapping("own/{id}/test-result")
-    @PreAuthorize("hasAuthority('VIEW_OWN_SUBMISSION')")
+    @PreAuthorize("hasAuthority('"+VIEW_OWN_SUBMISSION+"')")
     public Submission getTestResult(Authentication authentication,
                                               @PathVariable Long id)
             throws ResourceNotFoundException, UnauthorizedException {

@@ -23,6 +23,9 @@ import uk.ac.swansea.autograder.exceptions.UnauthorizedException;
 
 import java.util.List;
 
+import static uk.ac.swansea.autograder.general.enums.PermissionEnum.CREATE_TEST_CASE;
+import static uk.ac.swansea.autograder.general.enums.PermissionEnum.VIEW_TEST_CASE;
+
 @RestController
 @RequestMapping("api/test-cases")
 @Tag(name = "Manage test-cases", description = "Can create/update test-cases.")
@@ -36,7 +39,7 @@ public class TestCasesController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAuthority('VIEW_TEST_CASE')")
+    @PreAuthorize("hasAuthority('"+VIEW_TEST_CASE+"')")
     public List<TestCase> getTestCases(@RequestParam(required = false) Long problemId,
                                        @RequestParam(defaultValue = "0") Integer pageNo,
                                        @RequestParam(defaultValue = "10") Integer pageSize) {
@@ -51,7 +54,7 @@ public class TestCasesController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('CREATE_TEST_CASE')")
+    @PreAuthorize("hasAuthority('"+CREATE_TEST_CASE+"')")
     public ResponseEntity<TestCase> addTestCase(Authentication authentication,
                                 @Valid @RequestBody TestCaseDto testCaseDto) throws ResourceNotFoundException, UnauthorizedException {
         // check owner id

@@ -19,13 +19,15 @@ import uk.ac.swansea.autograder.api.controllers.dto.ProblemBriefDto;
 import uk.ac.swansea.autograder.api.controllers.dto.ProblemDto;
 import uk.ac.swansea.autograder.api.entities.Problem;
 import uk.ac.swansea.autograder.api.services.ProblemService;
-import uk.ac.swansea.autograder.api.services.SubmissionMainService;
+import uk.ac.swansea.autograder.api.services.SubmissionExecutionService;
 import uk.ac.swansea.autograder.api.services.dto.RuntimeDto;
 import uk.ac.swansea.autograder.config.MyUserDetails;
 import uk.ac.swansea.autograder.exceptions.ResourceNotFoundException;
 import uk.ac.swansea.autograder.exceptions.UnauthorizedException;
 
 import java.util.List;
+
+import static uk.ac.swansea.autograder.general.enums.PermissionEnum.*;
 
 /**
  * Create a problem so that students can submit a code for it.
@@ -47,7 +49,7 @@ public class ProblemsController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAuthority('VIEW_PROBLEM')")
+    @PreAuthorize("hasAuthority('"+ VIEW_PROBLEM +" ')")
     public List<ProblemBriefDto> getProblems(@RequestParam(defaultValue = "0") Integer pageNo,
                                              @RequestParam(defaultValue = "10") Integer pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("id").descending());
@@ -56,7 +58,7 @@ public class ProblemsController {
     }
 
     @GetMapping("own")
-    @PreAuthorize("hasAuthority('VIEW_PROBLEM')")
+    @PreAuthorize("hasAuthority(' " + VIEW_PROBLEM + "')")
     @Operation(
             summary = "Get all problems",
             description = "Returns a paginated list of problems created by the authenticated user. Results are sorted by ID in descending order."
@@ -71,7 +73,7 @@ public class ProblemsController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('CREATE_PROBLEM')")
+    @PreAuthorize("hasAuthority('"+ CREATE_PROBLEM + "')")
     @Operation(
             summary = "Create new problem",
             description = "Creates a new programming problem with the provided details. The authenticated user will be set as the creator."
@@ -93,7 +95,7 @@ public class ProblemsController {
     }
 
     @GetMapping("{id}")
-    @PreAuthorize("hasAuthority('VIEW_PROBLEM')")
+    @PreAuthorize("hasAuthority('" + VIEW_PROBLEM + "')")
     @Operation(
             summary = "Get problem by ID",
             description = "Returns detailed information about a specific problem."
@@ -104,7 +106,7 @@ public class ProblemsController {
     }
 
     @PutMapping("{id}")
-    @PreAuthorize("hasAuthority('UPDATE_PROBLEM')")
+    @PreAuthorize("hasAuthority('" + UPDATE_PROBLEM + "')")
     @Operation(
             summary = "Update problem",
             description = "Updates an existing problem. Only the user who created the problem can modify it."
@@ -117,7 +119,7 @@ public class ProblemsController {
     }
 
     @PutMapping("own/{id}")
-    @PreAuthorize("hasAuthority('UPDATE_OWN_PROBLEM')")
+    @PreAuthorize("hasAuthority('"+ UPDATE_OWN_PROBLEM +" ')")
     @Operation(
             summary = "Update Own problem",
             description = "Updates an existing problem. Only the user who created the problem can modify it."
@@ -138,7 +140,7 @@ public class ProblemsController {
     }
 
     @GetMapping("runtimes")
-    @PreAuthorize("hasAuthority('CREATE_PROBLEM')")
+    //TODO: need permission, what is this endpoint for
     public List<RuntimeDto> getProblemRuntimes() {
         return submissionExecutionService.getRuntimes();
     }
