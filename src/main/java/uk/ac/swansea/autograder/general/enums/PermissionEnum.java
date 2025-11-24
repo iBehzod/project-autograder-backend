@@ -23,6 +23,9 @@ public final class PermissionEnum {
     public static final String VIEW_OWN_USER = "VIEW_OWN_USER";
     public static final String VIEW_USER = "VIEW_USER";
 
+    // Permission management
+    public static final String VIEW_PERMISSION = "VIEW_PERMISSION";
+
     // ---------------------------------------------------------
     // Role Management (alphabetically sorted)
     // ---------------------------------------------------------

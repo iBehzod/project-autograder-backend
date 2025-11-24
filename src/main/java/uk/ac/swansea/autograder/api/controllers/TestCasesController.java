@@ -39,7 +39,7 @@ public class TestCasesController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAuthority('"+VIEW_TEST_CASE+"')")
+    @PreAuthorize("hasAuthority('" + VIEW_TEST_CASE + "')")
     public List<TestCase> getTestCases(@RequestParam(required = false) Long problemId,
                                        @RequestParam(defaultValue = "0") Integer pageNo,
                                        @RequestParam(defaultValue = "10") Integer pageSize) {
@@ -54,7 +54,7 @@ public class TestCasesController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('"+CREATE_TEST_CASE+"')")
+    @PreAuthorize("hasAuthority('" + CREATE_TEST_CASE + "')")
     public ResponseEntity<TestCase> addTestCase(Authentication authentication,
                                 @Valid @RequestBody TestCaseDto testCaseDto) throws ResourceNotFoundException, UnauthorizedException {
         // check owner id

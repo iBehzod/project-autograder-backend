@@ -39,7 +39,7 @@ public class RolesController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAuthority('"+VIEW_ROLE+"')")
+    @PreAuthorize("hasAuthority('" + VIEW_ROLE + "')")
     @Operation(summary = "Get all roles", description = "Returns a paginated list of roles with permissions")
     public List<RoleDto> getUsers(@RequestParam(defaultValue = "0") Integer pageNo,
                                   @RequestParam(defaultValue = "10") Integer pageSize) {
@@ -49,7 +49,7 @@ public class RolesController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('"+CREATE_ROLE+"')")
+    @PreAuthorize("hasAuthority('" + CREATE_ROLE + "')")
     @Operation(summary = "Create new role", description = "Creates a new role, with permissions")
     public ResponseEntity<RoleDto> createUser(@Valid @RequestBody NewRoleDto newRoleDto) throws ResourceNotFoundException {
         Role role = roleService.createRole(newRoleDto);
@@ -63,7 +63,7 @@ public class RolesController {
     }
 
     @GetMapping("{id}")
-    @PreAuthorize("hasAuthority('"+VIEW_ROLE+"')")
+    @PreAuthorize("hasAuthority('" + VIEW_ROLE + "')")
     @Operation(summary = "Get role", description = "Returns a role with permissions")
     public ResponseEntity<RoleDto> getUser(@PathVariable Integer id) throws ResourceNotFoundException {
         Role role = roleService.getRole(id);
@@ -72,7 +72,7 @@ public class RolesController {
     }
 
     @PutMapping("{id}")
-    @PreAuthorize("hasAuthority('"+UPDATE_ROLE+"')")
+    @PreAuthorize("hasAuthority('" + UPDATE_ROLE + "')")
     @Operation(summary = "Update role", description = "Updates role, with permissions")
     public RoleDto updateUser(@Valid @RequestBody RoleDto roleDto) throws ResourceNotFoundException {
         Role role = roleService.updateRole(roleDto);

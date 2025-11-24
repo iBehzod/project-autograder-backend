@@ -70,7 +70,7 @@ public class UsersController {
     }
 
     @GetMapping("{id}")
-    @PreAuthorize("hasAuthority('" + VIEW_USER +" ')")
+    @PreAuthorize("hasAuthority('" + VIEW_USER + "')")
     @Operation(summary = "Get user", description = "Returns a user")
     public UserDto getUser(@PathVariable Long id) throws ResourceNotFoundException {
         User user = userService.getUser(id);
@@ -78,7 +78,7 @@ public class UsersController {
     }
 
     @GetMapping("own/{id}")
-    @PreAuthorize("hasAuthority(' "+ VIEW_OWN_USER +" ')")
+    @PreAuthorize("hasAuthority('" + VIEW_OWN_USER + "')")
     @Operation(summary = "Get user", description = "Returns a user")
     public UserDto getOwnUser(Authentication authentication, @PathVariable Long id) throws ResourceNotFoundException, UnauthorizedException {
         // check owner id
@@ -92,7 +92,7 @@ public class UsersController {
     }
 
     @PutMapping("{id}")
-    @PreAuthorize("hasAuthority('"+ UPDATE_USER + "')")
+    @PreAuthorize("hasAuthority('" + UPDATE_USER + "')")
     @Operation(summary = "Update user", description = "Updates user account")
     public UserDto updateUser(@Valid @RequestBody UserDto userDto) throws ResourceNotFoundException {
         User user = userService.updateUser(userDto);
@@ -100,7 +100,7 @@ public class UsersController {
     }
 
     @PutMapping("{id}/assign-roles")
-    @PreAuthorize("hasAuthority('"+ ASSIGN_ROLE +" ')")
+    @PreAuthorize("hasAuthority('" + ASSIGN_ROLE + "')")
     @Operation(summary = "Update roles", description = "Updates user roles")
     public UserDto updateUserRoles(@Valid @RequestBody UserDto userDto) throws ResourceNotFoundException {
         User user = userService.updateUserRoles(userDto);

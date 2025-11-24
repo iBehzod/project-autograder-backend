@@ -49,7 +49,7 @@ public class ProblemsController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAuthority('"+ VIEW_PROBLEM +" ')")
+    @PreAuthorize("hasAuthority('"+ VIEW_PROBLEM +"')")
     public List<ProblemBriefDto> getProblems(@RequestParam(defaultValue = "0") Integer pageNo,
                                              @RequestParam(defaultValue = "10") Integer pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("id").descending());
@@ -58,7 +58,7 @@ public class ProblemsController {
     }
 
     @GetMapping("own")
-    @PreAuthorize("hasAuthority(' " + VIEW_PROBLEM + "')")
+    @PreAuthorize("hasAuthority('" + VIEW_PROBLEM + "')")
     @Operation(
             summary = "Get all problems",
             description = "Returns a paginated list of problems created by the authenticated user. Results are sorted by ID in descending order."
@@ -73,7 +73,7 @@ public class ProblemsController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('"+ CREATE_PROBLEM + "')")
+    @PreAuthorize("hasAuthority('" + CREATE_PROBLEM + "')")
     @Operation(
             summary = "Create new problem",
             description = "Creates a new programming problem with the provided details. The authenticated user will be set as the creator."
@@ -119,7 +119,7 @@ public class ProblemsController {
     }
 
     @PutMapping("own/{id}")
-    @PreAuthorize("hasAuthority('"+ UPDATE_OWN_PROBLEM +" ')")
+    @PreAuthorize("hasAuthority('" + UPDATE_OWN_PROBLEM + "')")
     @Operation(
             summary = "Update Own problem",
             description = "Updates an existing problem. Only the user who created the problem can modify it."

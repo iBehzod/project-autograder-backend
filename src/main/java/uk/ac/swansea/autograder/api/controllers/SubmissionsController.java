@@ -82,7 +82,7 @@ public class SubmissionsController {
      * @return list of submissions
      */
     @GetMapping("own")
-    @PreAuthorize("hasAuthority('" + VIEW_OWN_SUBMISSION +"')")
+    @PreAuthorize("hasAuthority('" + VIEW_OWN_SUBMISSION + "')")
     public List<SubmissionBriefDto> getOwnSubmissions(Authentication authentication,
                                                    @RequestParam(required = false) Long problemId,
                                                    @RequestParam(defaultValue = "0") Integer pageNo,
@@ -106,7 +106,7 @@ public class SubmissionsController {
      * @return submission
      */
     @GetMapping("{id}")
-    @PreAuthorize("hasAuthority(' "+ VIEW_SUBMISSION +" ')")
+    @PreAuthorize("hasAuthority('" + VIEW_SUBMISSION + "')")
     public SubmissionDto getSubmission(@PathVariable Long id)
             throws ResourceNotFoundException {
         Submission submission = submissionService.getSubmission(id);
@@ -205,7 +205,7 @@ public class SubmissionsController {
      * Get test cases and results
      */
     @GetMapping("own/{id}/test-result")
-    @PreAuthorize("hasAuthority('"+VIEW_OWN_SUBMISSION+"')")
+    @PreAuthorize("hasAuthority('" + VIEW_OWN_SUBMISSION + "')")
     public Submission getTestResult(Authentication authentication,
                                               @PathVariable Long id)
             throws ResourceNotFoundException, UnauthorizedException {

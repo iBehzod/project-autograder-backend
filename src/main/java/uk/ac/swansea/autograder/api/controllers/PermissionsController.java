@@ -2,27 +2,20 @@ package uk.ac.swansea.autograder.api.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import uk.ac.swansea.autograder.api.controllers.dto.NewRoleDto;
 import uk.ac.swansea.autograder.api.controllers.dto.PermissionDto;
-import uk.ac.swansea.autograder.api.controllers.dto.RoleDto;
-import uk.ac.swansea.autograder.exceptions.ResourceNotFoundException;
 import uk.ac.swansea.autograder.general.entities.Permission;
-import uk.ac.swansea.autograder.general.entities.Role;
 import uk.ac.swansea.autograder.general.services.PermissionService;
-import uk.ac.swansea.autograder.general.services.RoleService;
 
-import java.net.URI;
 import java.util.List;
+
+import static uk.ac.swansea.autograder.general.enums.PermissionEnum.VIEW_PERMISSION;
 
 /**
  * Can create/update permissions.
@@ -40,7 +33,7 @@ public class PermissionsController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAuthority('VIEW_PERMISSION')")
+    @PreAuthorize("hasAuthority('" + VIEW_PERMISSION + "')")
     @Operation(summary = "Get all permissions", description = "Returns a paginated list of permissions")
     public List<PermissionDto> getPermissions(@RequestParam(defaultValue = "0") Integer pageNo,
                                               @RequestParam(defaultValue = "10") Integer pageSize) {
