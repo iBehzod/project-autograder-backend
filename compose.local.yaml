@@ -23,6 +23,7 @@ services:
       DB_PORT: '${DB_PORT}'
       FORWARD_DB_PORT: '${FORWARD_DB_PORT}'
       DB_DATABASE: '${DB_DATABASE}'
+      DB_NAME: '${DB_NAME}'
       DB_USERNAME: '${DB_USERNAME}'
       DB_PASSWORD: '${DB_PASSWORD}'
 #      DB_TEST
@@ -36,6 +37,9 @@ services:
       REDIS_HOST: '${REDIS_HOST}'
       REDIS_PORT: '${REDIS_PORT}'
       REDIS_PASSWORD: '${REDIS_PASSWORD}'
+#      PISTON
+      PISTON_HOST: '${PISTON_HOST}'
+      PISTON_PORT: '${PISTON_PORT}'
 #      SPRING_PROFILES_ACTIVE: Local
     depends_on:
       - pgsql
@@ -88,6 +92,23 @@ services:
       test: [ 'CMD', 'redis-cli', 'ping' ]
       retries: 3
       timeout: 5s
+  piston:
+    image: ghcr.io/engineer-man/piston:latest
+    container_name: piston-executor
+    ports:
+      - "2000:2000"
+    networks:
+      - 'spring-boot-local'
+    volumes:
+      - piston-packages:/piston/packages
+      - piston-jobs:/piston/jobs
+    privileged: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:2000/api/v2/runtimes"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 networks:
   spring-boot-local:
     driver: bridge
@@ -97,4 +118,8 @@ volumes:
   pgsql-data-test:
     driver: local
   redis-data-local:
+    driver: local
+  piston-packages:
+    driver: local
+  piston-jobs:
     driver: local
