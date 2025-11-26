@@ -8,9 +8,13 @@ import org.modelmapper.TypeToken;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 import uk.ac.swansea.autograder.api.controllers.dto.NewUserDto;
 import uk.ac.swansea.autograder.api.controllers.dto.UserDto;
 import uk.ac.swansea.autograder.config.MyUserDetails;
@@ -21,6 +25,8 @@ import uk.ac.swansea.autograder.general.services.UserService;
 
 import java.util.List;
 import java.util.Objects;
+
+import static uk.ac.swansea.autograder.general.enums.PermissionEnum.*;
 
 /**
  * Can create/update users.
@@ -38,7 +44,7 @@ public class UsersController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAuthority('VIEW_USER')")
+    @PreAuthorize("hasAuthority('" + VIEW_USER + "')")
     @Operation(summary = "Get all users", description = "Returns a paginated list of users")
     public List<UserDto> getUsers(@RequestParam(defaultValue = "0") Integer pageNo,
                                        @RequestParam(defaultValue = "10") Integer pageSize) {
@@ -48,15 +54,23 @@ public class UsersController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('CREATE_USER')")
+    @PreAuthorize("hasAuthority('" + CREATE_USER + "')")
     @Operation(summary = "Create new user", description = "Creates a new user account")
-    public UserDto createUser(@Valid @RequestBody NewUserDto newUserDto) throws ResourceNotFoundException {
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody NewUserDto newUserDto) throws ResourceNotFoundException {
         User user = userService.createUser(newUserDto);
-        return modelMapper.map(user, UserDto.class);
+        UserDto userDto = modelMapper.map(user, UserDto.class);
+        
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(user.getId())
+                .toUri();
+        
+        return ResponseEntity.created(location).body(userDto);
     }
 
     @GetMapping("{id}")
-    @PreAuthorize("hasAuthority('VIEW_USER')")
+    @PreAuthorize("hasAuthority('" + VIEW_USER + "')")
     @Operation(summary = "Get user", description = "Returns a user")
     public UserDto getUser(@PathVariable Long id) throws ResourceNotFoundException {
         User user = userService.getUser(id);
@@ -64,7 +78,7 @@ public class UsersController {
     }
 
     @GetMapping("own/{id}")
-    @PreAuthorize("hasAuthority('VIEW_OWN_USER')")
+    @PreAuthorize("hasAuthority('" + VIEW_OWN_USER + "')")
     @Operation(summary = "Get user", description = "Returns a user")
     public UserDto getOwnUser(Authentication authentication, @PathVariable Long id) throws ResourceNotFoundException, UnauthorizedException {
         // check owner id
@@ -78,7 +92,7 @@ public class UsersController {
     }
 
     @PutMapping("{id}")
-    @PreAuthorize("hasAuthority('UPDATE_USER')")
+    @PreAuthorize("hasAuthority('" + UPDATE_USER + "')")
     @Operation(summary = "Update user", description = "Updates user account")
     public UserDto updateUser(@Valid @RequestBody UserDto userDto) throws ResourceNotFoundException {
         User user = userService.updateUser(userDto);
@@ -86,7 +100,7 @@ public class UsersController {
     }
 
     @PutMapping("{id}/assign-roles")
-    @PreAuthorize("hasAuthority('ASSIGN_ROLES')")
+    @PreAuthorize("hasAuthority('" + ASSIGN_ROLE + "')")
     @Operation(summary = "Update roles", description = "Updates user roles")
     public UserDto updateUserRoles(@Valid @RequestBody UserDto userDto) throws ResourceNotFoundException {
         User user = userService.updateUserRoles(userDto);

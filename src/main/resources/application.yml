@@ -49,6 +49,9 @@ app:
     enabled: ${CLIENT_ENABLED}
     submissionResultUrl: ${CLIENT_URL}
 
+piston:
+  url: http://${PISTON_HOST:piston}:${PISTON_PORT:2000}  # Override via env or fall back to host/port
+
 # Actuator
 management:
   endpoint:

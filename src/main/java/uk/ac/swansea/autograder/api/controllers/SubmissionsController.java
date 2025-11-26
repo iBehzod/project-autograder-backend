@@ -7,15 +7,19 @@ import org.modelmapper.TypeToken;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 import uk.ac.swansea.autograder.api.controllers.dto.SubmissionBriefDto;
 import uk.ac.swansea.autograder.api.controllers.dto.SubmissionDetailDto;
 import uk.ac.swansea.autograder.api.controllers.dto.SubmissionDto;
 import uk.ac.swansea.autograder.api.entities.Submission;
 import uk.ac.swansea.autograder.api.services.SubmissionDetailService;
-import uk.ac.swansea.autograder.api.services.SubmissionMainService;
+import uk.ac.swansea.autograder.api.services.SubmissionExecutionService;
 import uk.ac.swansea.autograder.api.services.SubmissionService;
 import uk.ac.swansea.autograder.config.MyUserDetails;
 import uk.ac.swansea.autograder.exceptions.BadRequestException;
@@ -24,6 +28,8 @@ import uk.ac.swansea.autograder.exceptions.UnauthorizedException;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static uk.ac.swansea.autograder.general.enums.PermissionEnum.*;
 
 /**
  * Get all submissions.
@@ -36,16 +42,16 @@ import java.util.stream.Collectors;
 public class SubmissionsController {
     private final SubmissionService submissionService;
     private final SubmissionDetailService submissionDetailService;
-    private final SubmissionMainService submissionMainService;
+    private final SubmissionExecutionService submissionExecutionService;
     private final ModelMapper modelMapper;
 
     public SubmissionsController(SubmissionService submissionService,
                                  SubmissionDetailService submissionDetailService,
-                                 SubmissionMainService submissionMainService,
+                                 SubmissionExecutionService submissionExecutionService,
                                  ModelMapper modelMapper) {
         this.submissionService = submissionService;
         this.submissionDetailService = submissionDetailService;
-        this.submissionMainService = submissionMainService;
+        this.submissionExecutionService = submissionExecutionService;
         this.modelMapper = modelMapper;
     }
 
@@ -55,7 +61,7 @@ public class SubmissionsController {
      * @return list of submissions
      */
     @GetMapping
-    @PreAuthorize("hasAuthority('VIEW_SUBMISSION')")
+    @PreAuthorize("hasAuthority('" + VIEW_SUBMISSION + "')")
     public List<SubmissionBriefDto> getSubmissions(@RequestParam(required = false) Long problemId,
                                                    @RequestParam(defaultValue = "0") Integer pageNo,
                                                    @RequestParam(defaultValue = "10") Integer pageSize) {
@@ -76,7 +82,7 @@ public class SubmissionsController {
      * @return list of submissions
      */
     @GetMapping("own")
-    @PreAuthorize("hasAuthority('VIEW_OWN_SUBMISSION')")
+    @PreAuthorize("hasAuthority('" + VIEW_OWN_SUBMISSION + "')")
     public List<SubmissionBriefDto> getOwnSubmissions(Authentication authentication,
                                                    @RequestParam(required = false) Long problemId,
                                                    @RequestParam(defaultValue = "0") Integer pageNo,
@@ -100,7 +106,7 @@ public class SubmissionsController {
      * @return submission
      */
     @GetMapping("{id}")
-    @PreAuthorize("hasAuthority('VIEW_SUBMISSION')")
+    @PreAuthorize("hasAuthority('" + VIEW_SUBMISSION + "')")
     public SubmissionDto getSubmission(@PathVariable Long id)
             throws ResourceNotFoundException {
         Submission submission = submissionService.getSubmission(id);
@@ -113,7 +119,7 @@ public class SubmissionsController {
      * @return submission
      */
     @GetMapping("own/{id}")
-    @PreAuthorize("hasAuthority('VIEW_OWN_SUBMISSION')")
+    @PreAuthorize("hasAuthority('" + VIEW_OWN_SUBMISSION + "')")
     public SubmissionDto getOwnSubmission(Authentication authentication,
                                           @PathVariable Long id)
             throws ResourceNotFoundException, UnauthorizedException {
@@ -130,7 +136,7 @@ public class SubmissionsController {
      * Get test cases and results
      */
     @GetMapping("{id}/detail")
-    @PreAuthorize("hasAuthority('VIEW_SUBMISSION')")
+    @PreAuthorize("hasAuthority('" + VIEW_SUBMISSION + "')")
     public List<SubmissionDetailDto> getSubmissionDetails(@PathVariable Long id) {
         return submissionDetailService.getSubmissionDetail(id)
                 .stream()
@@ -149,7 +155,7 @@ public class SubmissionsController {
      * Get own submission details, which include test cases and results
      */
     @GetMapping("own/{id}/detail")
-    @PreAuthorize("hasAuthority('VIEW_OWN_SUBMISSION')")
+    @PreAuthorize("hasAuthority('" + VIEW_OWN_SUBMISSION + "')")
     public List<SubmissionDetailDto> getOwnSubmissionDetails(Authentication authentication,
                                                           @PathVariable Long id) throws ResourceNotFoundException, UnauthorizedException {
         // check owner id
@@ -178,20 +184,28 @@ public class SubmissionsController {
      * @param submissionDto submission body
      */
     @PostMapping
-    @PreAuthorize("hasAuthority('CREATE_SUBMISSION')")
-    public Submission submitSolution(Authentication authentication,
+    @PreAuthorize("hasAuthority('" + CREATE_SUBMISSION + "')")
+    public ResponseEntity<Submission> submitSolution(Authentication authentication,
                                      @Valid @RequestBody SubmissionDto submissionDto)
             throws ResourceNotFoundException, BadRequestException {
         MyUserDetails user = (MyUserDetails) authentication.getPrincipal();
         submissionDto.setUserId(user.getId());
-        return submissionMainService.submitSolution(submissionDto);
+        Submission submission = submissionExecutionService.submitSolution(submissionDto);
+        
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(submission.getId())
+                .toUri();
+        
+        return ResponseEntity.created(location).body(submission);
     }
 
     /**
      * Get test cases and results
      */
     @GetMapping("own/{id}/test-result")
-    @PreAuthorize("hasAuthority('VIEW_OWN_SUBMISSION')")
+    @PreAuthorize("hasAuthority('" + VIEW_OWN_SUBMISSION + "')")
     public Submission getTestResult(Authentication authentication,
                                               @PathVariable Long id)
             throws ResourceNotFoundException, UnauthorizedException {

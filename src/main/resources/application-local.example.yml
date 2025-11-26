@@ -8,7 +8,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/autograder
     username: postgres
-    password: 'REPLACE_HERE'
+    password: 1234
     driverClassName: org.postgresql.Driver
 
   # Database Migration Configuration
@@ -37,17 +37,19 @@ spring:
     redis:
       host: localhost
       port: 6379
-      password: 'REPLACE_HERE'
+      password: 1234
 
 # Application-specific Configuration
 app:
   security:
     jwt:
       expirationMinutes: 60
-      secret: 'REPLACE_HERE'
+      secret: 1234
   client:
     enabled: false
     submissionResultUrl: http://localhost:8886/submission-test-result
+  piston:
+    url: http://piston:2000  # Use env var or default to localhost for host-based dev
 
 # Actuator
 management:

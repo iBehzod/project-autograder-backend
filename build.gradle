@@ -28,8 +28,6 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     // validation
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    // piston - code execution engine
-    implementation 'com.github.the-codeboy:Piston4J:0.0.7'
     // model mapper - map list of objects into dto
     implementation 'org.modelmapper:modelmapper:3.1.0'
     // db
@@ -47,6 +45,8 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'
     // websocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    // Apache HttpClient5 for RestClient
+    implementation 'org.apache.httpcomponents.client5:httpclient5'
 }
 
 tasks.named('test') {

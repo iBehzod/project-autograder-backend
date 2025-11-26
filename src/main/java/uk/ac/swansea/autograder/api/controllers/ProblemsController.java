@@ -8,20 +8,26 @@ import org.modelmapper.TypeToken;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 import uk.ac.swansea.autograder.api.controllers.dto.ProblemBriefDto;
 import uk.ac.swansea.autograder.api.controllers.dto.ProblemDto;
 import uk.ac.swansea.autograder.api.entities.Problem;
 import uk.ac.swansea.autograder.api.services.ProblemService;
-import uk.ac.swansea.autograder.api.services.SubmissionMainService;
+import uk.ac.swansea.autograder.api.services.SubmissionExecutionService;
 import uk.ac.swansea.autograder.api.services.dto.RuntimeDto;
 import uk.ac.swansea.autograder.config.MyUserDetails;
 import uk.ac.swansea.autograder.exceptions.ResourceNotFoundException;
 import uk.ac.swansea.autograder.exceptions.UnauthorizedException;
 
 import java.util.List;
+
+import static uk.ac.swansea.autograder.general.enums.PermissionEnum.*;
 
 /**
  * Create a problem so that students can submit a code for it.
@@ -33,17 +39,17 @@ import java.util.List;
 @Tag(name = "Manage problems", description = "Create a problem so that students can submit a code for it.")
 public class ProblemsController {
     private final ProblemService problemService;
-    private final SubmissionMainService submissionMainService;
+    private final SubmissionExecutionService submissionExecutionService;
     private final ModelMapper modelMapper;
 
-    public ProblemsController(ProblemService problemService, SubmissionMainService submissionMainService, ModelMapper modelMapper) {
+    public ProblemsController(ProblemService problemService, SubmissionExecutionService submissionExecutionService, ModelMapper modelMapper) {
         this.problemService = problemService;
-        this.submissionMainService = submissionMainService;
+        this.submissionExecutionService = submissionExecutionService;
         this.modelMapper = modelMapper;
     }
 
     @GetMapping
-    @PreAuthorize("hasAuthority('VIEW_PROBLEM')")
+    @PreAuthorize("hasAuthority('"+ VIEW_PROBLEM +"')")
     public List<ProblemBriefDto> getProblems(@RequestParam(defaultValue = "0") Integer pageNo,
                                              @RequestParam(defaultValue = "10") Integer pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("id").descending());
@@ -52,7 +58,7 @@ public class ProblemsController {
     }
 
     @GetMapping("own")
-    @PreAuthorize("hasAuthority('VIEW_PROBLEM')")
+    @PreAuthorize("hasAuthority('" + VIEW_PROBLEM + "')")
     @Operation(
             summary = "Get all problems",
             description = "Returns a paginated list of problems created by the authenticated user. Results are sorted by ID in descending order."
@@ -67,21 +73,29 @@ public class ProblemsController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('CREATE_PROBLEM')")
+    @PreAuthorize("hasAuthority('" + CREATE_PROBLEM + "')")
     @Operation(
             summary = "Create new problem",
             description = "Creates a new programming problem with the provided details. The authenticated user will be set as the creator."
     )
-    public ProblemDto createProblem(Authentication authentication,
+    public ResponseEntity<ProblemDto> createProblem(Authentication authentication,
                                     @Valid @RequestBody ProblemDto problemDto) {
         MyUserDetails user = (MyUserDetails) authentication.getPrincipal();
         problemDto.setUserId(user.getId());
         Problem problem = problemService.createProblem(problemDto);
-        return modelMapper.map(problem, ProblemDto.class);
+        ProblemDto createdProblemDto = modelMapper.map(problem, ProblemDto.class);
+        
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(problem.getId())
+                .toUri();
+        
+        return ResponseEntity.created(location).body(createdProblemDto);
     }
 
     @GetMapping("{id}")
-    @PreAuthorize("hasAuthority('VIEW_PROBLEM')")
+    @PreAuthorize("hasAuthority('" + VIEW_PROBLEM + "')")
     @Operation(
             summary = "Get problem by ID",
             description = "Returns detailed information about a specific problem."
@@ -92,7 +106,7 @@ public class ProblemsController {
     }
 
     @PutMapping("{id}")
-    @PreAuthorize("hasAuthority('UPDATE_PROBLEM')")
+    @PreAuthorize("hasAuthority('" + UPDATE_PROBLEM + "')")
     @Operation(
             summary = "Update problem",
             description = "Updates an existing problem. Only the user who created the problem can modify it."
@@ -105,7 +119,7 @@ public class ProblemsController {
     }
 
     @PutMapping("own/{id}")
-    @PreAuthorize("hasAuthority('UPDATE_OWN_PROBLEM')")
+    @PreAuthorize("hasAuthority('" + UPDATE_OWN_PROBLEM + "')")
     @Operation(
             summary = "Update Own problem",
             description = "Updates an existing problem. Only the user who created the problem can modify it."
@@ -126,8 +140,8 @@ public class ProblemsController {
     }
 
     @GetMapping("runtimes")
-    @PreAuthorize("hasAuthority('CREATE_PROBLEM')")
+    //TODO: need permission, what is this endpoint for
     public List<RuntimeDto> getProblemRuntimes() {
-        return submissionMainService.getRuntimes();
+        return submissionExecutionService.getRuntimes();
     }
 }

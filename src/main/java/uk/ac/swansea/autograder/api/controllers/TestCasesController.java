@@ -5,9 +5,13 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 import uk.ac.swansea.autograder.api.controllers.dto.TestCaseDto;
 import uk.ac.swansea.autograder.api.entities.Problem;
 import uk.ac.swansea.autograder.api.entities.TestCase;
@@ -18,6 +22,9 @@ import uk.ac.swansea.autograder.exceptions.ResourceNotFoundException;
 import uk.ac.swansea.autograder.exceptions.UnauthorizedException;
 
 import java.util.List;
+
+import static uk.ac.swansea.autograder.general.enums.PermissionEnum.CREATE_TEST_CASE;
+import static uk.ac.swansea.autograder.general.enums.PermissionEnum.VIEW_TEST_CASE;
 
 @RestController
 @RequestMapping("api/test-cases")
@@ -32,7 +39,7 @@ public class TestCasesController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAuthority('VIEW_TEST_CASE')")
+    @PreAuthorize("hasAuthority('" + VIEW_TEST_CASE + "')")
     public List<TestCase> getTestCases(@RequestParam(required = false) Long problemId,
                                        @RequestParam(defaultValue = "0") Integer pageNo,
                                        @RequestParam(defaultValue = "10") Integer pageSize) {
@@ -47,8 +54,8 @@ public class TestCasesController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('CREATE_TEST_CASE')")
-    public TestCase addTestCase(Authentication authentication,
+    @PreAuthorize("hasAuthority('" + CREATE_TEST_CASE + "')")
+    public ResponseEntity<TestCase> addTestCase(Authentication authentication,
                                 @Valid @RequestBody TestCaseDto testCaseDto) throws ResourceNotFoundException, UnauthorizedException {
         // check owner id
         MyUserDetails user = (MyUserDetails) authentication.getPrincipal();
@@ -57,6 +64,14 @@ public class TestCasesController {
         if (!problem.getUserId().equals(user.getId())) {
             throw new UnauthorizedException();
         }
-        return testCaseService.addTestCase(problemId, testCaseDto);
+        TestCase testCase = testCaseService.addTestCase(problemId, testCaseDto);
+        
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(testCase.getId())
+                .toUri();
+        
+        return ResponseEntity.created(location).body(testCase);
     }
 }

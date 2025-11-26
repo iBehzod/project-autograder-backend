@@ -7,13 +7,14 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
+import uk.ac.swansea.autograder.api.services.SubmissionExecutionService;
 
 /**
- * WebSocketMessage queues are ideal for requests which may take a long time to process.
- * Messaging to process submissions, enables asynchronously executing tests.
- * Direct/synchronous/blocking calls increase rest response time.
- * Also, Messaging helps to use the third party code execution engine synchronously, which
- * allows balancing a load on backend and api during peak hours
+ * Redis message queue configuration for asynchronous submission processing.
+ * 
+ * Message queues are ideal for requests which may take a long time to process.
+ * Enables asynchronously executing tests without blocking REST response time.
+ * Also allows using third party code execution engines and balancing load during peak hours.
  */
 @Configuration
 public class MessagingConfig {
@@ -34,8 +35,8 @@ public class MessagingConfig {
     }
 
     @Bean
-    SubmissionReceiver receiver() {
-        return new SubmissionReceiver();
+    SubmissionReceiver receiver(SubmissionExecutionService submissionExecutionService) {
+        return new SubmissionReceiver(submissionExecutionService);
     }
 
     @Bean
