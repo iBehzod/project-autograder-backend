@@ -2,7 +2,7 @@
 [DONE] merge submission_test_results into submissions.
 [TEST] assign-roles route.
 [DONE] display error message for submission
-[DONE] Restrict usage of websocket for students then to specific studentId.
+[] Restrict usage of websocket for students then to specific studentId with Auth.
 [DONE] confirm if two websocket connections collide.
 # Optimisation (ALL COMPLETED EXCEPT PISTON INTEGRATION)
 [DONE] make sure post returns 201 everywhere and location, following convention
