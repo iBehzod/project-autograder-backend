@@ -24,7 +24,7 @@ public class WebSocketController {
     public Submission getTestResult(WebSocketMessage webSocketMessage, Authentication authentication)
             throws Exception {
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new UnauthorizedException("User must be authenticated");
+            throw new UnauthorizedException();
         }
 
         Submission submission = submissionService.getSubmission(webSocketMessage.getSubmissionId());
@@ -33,10 +33,10 @@ public class WebSocketController {
         // Check if user owns submission OR has VIEW_SUBMISSION permission (Admin/Lecturer)
         boolean isOwner = submission.getUserId().equals(user.getId());
         boolean hasPermission = user.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals(VIEW_SUBMISSION.name()));
+                .anyMatch(a -> a.getAuthority().equals(VIEW_SUBMISSION));
 
         if (!isOwner && !hasPermission) {
-            throw new UnauthorizedException("Access Denied");
+            throw new UnauthorizedException();
         }
 
         return submission;

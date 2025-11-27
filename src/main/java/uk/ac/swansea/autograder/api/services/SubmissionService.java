@@ -1,12 +1,11 @@
 package uk.ac.swansea.autograder.api.services;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import uk.ac.swansea.autograder.api.entities.Submission;
 import uk.ac.swansea.autograder.api.repositories.SubmissionRepository;
 import uk.ac.swansea.autograder.exceptions.ResourceNotFoundException;
-
-import java.util.List;
 
 @Service
 public class SubmissionService {
@@ -16,7 +15,7 @@ public class SubmissionService {
         this.submissionRepository = submissionRepository;
     }
 
-    public List<Submission> getSubmissionsByProblemIdAndUserId(Long problemId, Long userId,
+    public Page<Submission> getSubmissionsByProblemIdAndUserId(Long problemId, Long userId,
                                                                   Pageable pageable) {
         return submissionRepository.findAllByProblemIdAndUserId(problemId, userId, pageable);
     }
@@ -26,11 +25,11 @@ public class SubmissionService {
                 ResourceNotFoundException::new);
     }
 
-    public List<Submission> getSubmissionsByUserId(Long userId, Pageable pageable) {
-        return submissionRepository.findAllByuserId(userId, pageable);
+    public Page<Submission> getSubmissionsByUserId(Long userId, Pageable pageable) {
+        return submissionRepository.findAllByUserId(userId, pageable);
     }
 
-    public List<Submission> getSubmissionsByProblemId(Long problemId, Pageable pageable) {
+    public Page<Submission> getSubmissionsByProblemId(Long problemId, Pageable pageable) {
         return submissionRepository.findAllByProblemId(problemId, pageable);
     }
 
@@ -50,8 +49,8 @@ public class SubmissionService {
         submissionRepository.save(submission);
     }
 
-    public List<Submission> getSubmissions(Pageable pageable) {
-        return submissionRepository.findAll(pageable).toList();
+    public Page<Submission> getSubmissions(Pageable pageable) {
+        return submissionRepository.findAll(pageable);
     }
 
     public void createSubmissionTestResult(Long submissionId, int totalTestCases, int processedTestCases, int correctTestCases) throws ResourceNotFoundException {

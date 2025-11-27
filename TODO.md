@@ -15,9 +15,9 @@
   - Replaced Piston4j library with direct REST integration
   - Fully self-hosted - no external API dependency
   - Configuration: piston.api.url=http://piston:2000
-[] paginated routes return metadata
-  - Created PageResponse<T> generic DTO
-  - Includes totalPages, totalElements, hasNext, hasPrevious
+[DONE] paginated routes return metadata
+  - Changed Repository/Service/Controller to return Page<T> instead of List<T>
+  - Spring's Page automatically includes totalPages, totalElements, hasNext, hasPrevious
 [DONE] sort permission file
   - Make permissions string->importable variable.
 [] api/problems/runtimes - fix permission
