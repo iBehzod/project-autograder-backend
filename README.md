@@ -1,13 +1,18 @@
 # Overview
-An autograder web application is a software tool designed to automatically evaluate and grade assignments.
+An autograder web application designed to automatically evaluate and grade assignments using a secure, containerized execution environment.
 Frontend web application is available at https://github.com/niyozbek/project-autograder-app.
 
 # Requirements
-- Docker
+- Docker & Docker Compose
+- Java 17 (Open JDK)
+- Piston (Code Execution Engine - handled via Docker)
 
-# Version
-- Spring Boot 3.5.x
-- Postgres 17.x
+# Tech Stack
+- **Framework**: Spring Boot 3.5.x
+- **Database**: PostgreSQL 17.x
+- **Security**: Spring Security + JWT + Role-Based Access Control (RBAC)
+- **Real-time**: WebSocket (StompJS) with Query Param Auth
+- **Execution**: Piston (Self-hosted via Docker)
 
 ## Dev environment set-up (Optional):
 - Install java open-jdk:17
@@ -17,7 +22,7 @@ Frontend web application is available at https://github.com/niyozbek/project-aut
   `gradle build`
   `gradle bootRun`
   `gradle wrapper`
-- Documentation: https://docs.spring.io/spring-boot/docs/2.6.6/reference/htmlsingle
+- Documentation: https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle
 
 ## Use openssl to generate keys or secrets:
     openssl rand -base64 18
@@ -27,23 +32,23 @@ Frontend web application is available at https://github.com/niyozbek/project-aut
 ## Run the project (Docker)
 
 ### Run `compose.local.yml`:
-- Down:
-  `docker compose -f compose.local.yaml down`
-
-- Down with volumes:
-  `docker compose -f compose.local.yaml down -v`
-
-- Up with build:
+- **Start All Services (App, DB, Redis, Piston):**
   `docker compose -f compose.local.yaml up --build -d`
 
-- Apply changes in the app - build and restart the app:
+- **Stop:**
+  `docker compose -f compose.local.yaml down`
+
+- **Stop & Clean Volumes:**
+  `docker compose -f compose.local.yaml down -v`
+
+- **Rebuild App Only:**
   `docker compose -f compose.local.yaml build app && docker compose -f compose.local.yaml restart app`
 
 ## Run the project in debug mode via IntelliJ:
-- Up redis and pgsql for local profile:
-  `docker compose -f compose.local.yaml up redis pgsql pgsql-test --build -d`
-- Configure application-local.yml.
-- Set the profile to local in IntelliJ.
+- Up dependencies (Redis, Postgres, Piston):
+  `docker compose -f compose.local.yaml up redis pgsql piston --build -d`
+- Configure `application-local.yml`.
+- Set the profile to `local` in IntelliJ.
   `export SPRING_PROFILES_ACTIVE=local`
   `gradle classes`
   `gradle test --debug`
@@ -54,11 +59,11 @@ Frontend web application is available at https://github.com/niyozbek/project-aut
 Example:
   `docker compose -f compose.local.yaml exec app bash`
 
-# Get started
-Three roles are created with migration by default:
--admin role: {username: admin, password: admin}
--lecturer role: {username: alex, password: alex}
--student role: {username: patrick, password: patrick}
+# Roles & Security
+Three default roles are created via Flyway migrations:
+- **Admin**: `{username: admin, password: admin}` - Full system access.
+- **Lecturer**: `{username: alex, password: alex}` - Manage problems & submissions.
+- **Student**: `{username: patrick, password: patrick}` - Submit solutions.
 
 # REST API DOCUMENTATION: 
 http://localhost:8080/swagger-ui/index.html#/

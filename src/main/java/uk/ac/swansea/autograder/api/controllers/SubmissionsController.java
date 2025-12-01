@@ -3,7 +3,7 @@ package uk.ac.swansea.autograder.api.controllers;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -62,17 +62,17 @@ public class SubmissionsController {
      */
     @GetMapping
     @PreAuthorize("hasAuthority('" + VIEW_SUBMISSION + "')")
-    public List<SubmissionBriefDto> getSubmissions(@RequestParam(required = false) Long problemId,
+    public Page<SubmissionBriefDto> getSubmissions(@RequestParam(required = false) Long problemId,
                                                    @RequestParam(defaultValue = "0") Integer pageNo,
                                                    @RequestParam(defaultValue = "10") Integer pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("id").descending());
-        List<Submission> submissionList;
+        Page<Submission> submissions;
         if (problemId != null) {
-            submissionList = submissionService.getSubmissionsByProblemId(problemId, pageable);
+            submissions = submissionService.getSubmissionsByProblemId(problemId, pageable);
         } else {
-            submissionList = submissionService.getSubmissions(pageable);
+            submissions = submissionService.getSubmissions(pageable);
         }
-        return modelMapper.map(submissionList, new TypeToken<List<SubmissionBriefDto>>() {}.getType());
+        return submissions.map(s -> modelMapper.map(s, SubmissionBriefDto.class));
     }
 
     /**
@@ -83,13 +83,13 @@ public class SubmissionsController {
      */
     @GetMapping("own")
     @PreAuthorize("hasAuthority('" + VIEW_OWN_SUBMISSION + "')")
-    public List<SubmissionBriefDto> getOwnSubmissions(Authentication authentication,
+    public Page<SubmissionBriefDto> getOwnSubmissions(Authentication authentication,
                                                    @RequestParam(required = false) Long problemId,
                                                    @RequestParam(defaultValue = "0") Integer pageNo,
                                                    @RequestParam(defaultValue = "10") Integer pageSize) {
         MyUserDetails user = (MyUserDetails) authentication.getPrincipal();
-        List<Submission> submissions;
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("id").descending());
+        Page<Submission> submissions;
         if (problemId != null) {
             submissions = submissionService
                     .getSubmissionsByProblemIdAndUserId(problemId, user.getId(), pageable);
@@ -97,7 +97,7 @@ public class SubmissionsController {
             submissions = submissionService
                     .getSubmissionsByUserId(user.getId(), pageable);
         }
-        return modelMapper.map(submissions, new TypeToken<List<SubmissionBriefDto>>() {}.getType());
+        return submissions.map(s -> modelMapper.map(s, SubmissionBriefDto.class));
     }
 
     /**
