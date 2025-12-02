@@ -42,7 +42,7 @@ public class JwtTokenProvider {
 
     public String getUserUsernameFromJWT(String token) {
         JWTVerifier verifier = JWT.require(Algorithm.HMAC256(jwtSecret.getBytes()))
-                .build();    //
+                .build(); //
 
         DecodedJWT jwt = verifier.verify(token);
 
@@ -51,7 +51,7 @@ public class JwtTokenProvider {
 
     public String getUserRoleFromJWT(String token) {
         JWTVerifier verifier = JWT.require(Algorithm.HMAC256(jwtSecret.getBytes()))
-                .build();    //
+                .build(); //
 
         DecodedJWT jwt = verifier.verify(token);
 

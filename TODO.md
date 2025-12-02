@@ -50,16 +50,16 @@
 [DONE] Role-based UI access control - only ADMIN sees admin dropdown
 
 # Security & Authorization
-[] Verify all admin routes return 403 (not 500) for unauthorized access
+[DONE] Verify all admin routes return 403 (not 500) for unauthorized access
 [] Add better error messages for permission denied scenarios
-[] Consider adding permission-based route guards beyond role checks
+[ALREADY DONE] Consider adding permission-based route guards beyond role checks
 [] Jwt token experation will make the right callback
-[] isenable column in users table should return access denied 
+[DONE] isenable column in users table should return access denied 
 [] endpoint issues need to be fixed  // before this implementation solution must be agreed by the team lead! 
-[] - 
+[DONE] - Update the java from 17 to 21
 
 # Readme
-[] update readme
+[DONE] update readme
 
 # Question from the 
 [] 

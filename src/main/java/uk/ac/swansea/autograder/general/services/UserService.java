@@ -60,4 +60,17 @@ public class UserService {
         user.setRoles(roles);
         return userRepository.save(user);
     }
+
+//    public User disableUser(Long id) throws ResourceNotFoundException {
+//        User user = getUser(id);
+//        user.setEnabled(false);
+//        return userRepository.save(user);
+//    }
+//
+//    public User enableUser(Long id) throws ResourceNotFoundException {
+//        User user = getUser(id);
+//        user.setEnabled(true);
+//        return userRepository.save(user);
+//    }
+
 }
