@@ -53,7 +53,7 @@
 [DONE] Verify all admin routes return 403 (not 500) for unauthorized access
 [] Add better error messages for permission denied scenarios
 [ALREADY DONE] Consider adding permission-based route guards beyond role checks
-[] Jwt token experation will make the right callback
+[DONE] Jwt token experation will make the right callback
 [DONE] isenable column in users table should return access denied 
 [] endpoint issues need to be fixed  // before this implementation solution must be agreed by the team lead! 
 [DONE] - Update the java from 17 to 21
