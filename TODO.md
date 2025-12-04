@@ -22,6 +22,9 @@
   - Make permissions string->importable variable.
 [] api/problems/runtimes - fix permission
 [] Rename method names in roles controller 
+[DONE] - setup/implement email into all users, via this email the user must be able to reset his password if he forgot his password 
+   - Using Mailpit (open-source SMTP) for local/dev, can configure any SMTP for production
+   - Endpoints: POST /auth/forgot-password, POST /auth/reset-password
 # Testing
 [] write more tests, 
     [] integration tests
